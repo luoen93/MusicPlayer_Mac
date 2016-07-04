@@ -2,6 +2,7 @@ package com.example.qiang.musicseekbar;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
@@ -239,10 +240,30 @@ public class MainActivity extends AppCompatActivity {
 
         player = new MediaPlayer();
 
+        loadconfig();
         init();
         findView();
         setListener();
 
+
+    }
+
+    public void onDestroy() {
+        super.onDestroy();
+        //指定操作的文件名称
+//        SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
+//        SharedPreferences.Editor edit = share.edit(); //编辑文件
+//        edit.putString("url", "natoli");
+//        edit.commit();  //保存数据信息
+
+        Log.i("======", "destroy");
+    }
+
+    //读取配置文件
+    private void loadconfig() {
+        SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
+        //歌曲url
+        String url = share.getString("ulr", null);
     }
 
 
@@ -250,9 +271,18 @@ public class MainActivity extends AppCompatActivity {
 //        player = MediaPlayer.create(this, R.raw.hello);
         try {
             player.reset();
+            SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
+            //歌曲url
+            String url = share.getString("url", null);
 
-            player.setDataSource("/sdcard/hello.mp3");
-            player.prepare();
+            if (url != null) {
+                player.setDataSource(url);
+                player.prepare();
+                Log.i("====", url);
+            } else {
+//                player.setDataSource("/sdcard/hello.mp3");
+//                player.prepare();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -394,6 +424,12 @@ public class MainActivity extends AppCompatActivity {
         String murl = geturl.get("url").toString();
         String back_img = geturl.get("images").toString();
         String mtitle = geturl.get("title").toString();
+
+        SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
+        SharedPreferences.Editor edit = share.edit(); //编辑文件
+        edit.putString("url", murl);
+        edit.commit();  //保存数据信息
+
         //重置MediaPlayer状态
         player.reset();
         try {
