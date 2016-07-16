@@ -1,7 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#4D4D4D"
     android:orientation="vertical">
 
-</LinearLayout>
+    <ImageView
+        android:id="@+id/no_small_img"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:src="@drawable/colorful" />
+
+    <TextView
+        android:id="@+id/no_small_title"
+        android:layout_width="match_parent"
+        android:layout_height="33dp"
+        android:layout_toLeftOf="@+id/no_small_play"
+        android:layout_toRightOf="@+id/no_small_img"
+        android:paddingLeft="10dp"
+        android:text="Title"
+        android:textColor="@color/title_color"
+        android:textSize="24dp" />
+
+    <TextView
+        android:id="@+id/no_small_singer"
+        android:layout_width="match_parent"
+        android:layout_height="27dp"
+        android:layout_below="@+id/no_small_title"
+        android:layout_toLeftOf="@+id/no_small_play"
+        android:layout_toRightOf="@+id/no_small_img"
+        android:paddingLeft="10dp"
+        android:text="singer"
+        android:textColor="@color/singer_color"
+        android:textSize="18dp" />
+
+    <ImageButton
+        android:id="@+id/no_small_next"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true" />
+
+    <ImageButton
+        android:id="@+id/no_small_play"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_toLeftOf="@+id/no_small_next"
+        android:background="@drawable/music_play" />
+
+</RelativeLayout>

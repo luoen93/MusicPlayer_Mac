@@ -26,8 +26,6 @@ public class DBUtil extends Activity {
         SQLiteDatabase db = myHelper.getWritableDatabase();
         //搜索操作
         Cursor cursor = db.query("music_info", null, null, null, null, null, "_id asc");
-        //获取书本数量
-        int num = cursor.getCount();
         //初始化一个数组
         List<Map<String, Object>> mblist = new ArrayList<Map<String, Object>>();
         //moveToFirst：移动到第一位数据

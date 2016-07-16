@@ -123,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
 //        edit.putString("url", "natoli");
 //        edit.commit();  //保存数据信息
 
+        // 清除id为NOTIFICATION_FLAG的通知
+        // manager.cancel(NOTIFICATION_FLAG);
+        // 清除所有的通知
+        // manager.cancelAll();
+        // break;
+
 
         Log.i("======", "destroy");
     }
@@ -258,10 +264,9 @@ public class MainActivity extends AppCompatActivity {
                     //启动
                     handler.post(updateThread);
                     buttonstart.setBackgroundResource(R.drawable.music_pause);
-                    notificationMethod();
                     ISPLAY = true;
                     //打开notification
-                    notificationMethod();
+//                    notificationMethod();
                 } else if (ISPLAY == true) {
                     player.pause();
                     ISPLAY = false;
@@ -305,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
         String murl = geturl.get("url").toString();
         String back_img = geturl.get("images").toString();
         String mtitle = geturl.get("title").toString();
+        String martist = geturl.get("artist").toString();
         String mtime = geturl.get("time").toString();
         //每次播放更新配置表中的配置数据
         SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
@@ -350,7 +356,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         seekBar1.setMax(player.getDuration());
-
+        notificationMethod(mtitle, martist, back_img);
     }
 
     private String formatTimeFromProgress(int progress) {
@@ -388,14 +394,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void notificationMethod() {
+    public void notificationMethod(String mtitle, String martist, String mimg) {
         // 在Android进行通知处理，首先需要重系统哪里获得通知管理器NotificationManager，它是一个系统Service。
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
 
         Notification myNotify = new Notification();
         myNotify.icon = R.drawable.natoli;
-        myNotify.tickerText = "您有新短消息，请注意查收！";
+        myNotify.tickerText = "开始播放";
         myNotify.when = System.currentTimeMillis();
         myNotify.flags = Notification.FLAG_NO_CLEAR;// 不能够自动清除
         myNotify.priority = Notification.PRIORITY_MAX;//设置优先级
@@ -406,25 +412,25 @@ public class MainActivity extends AppCompatActivity {
         myNotify.contentView = rv;
         myNotify.bigContentView = rv_big;
 
+        rv.setTextViewText(R.id.no_small_title, mtitle);
+        rv.setTextViewText(R.id.no_small_singer, martist);
+
+        AlbumDealUtil adu = new AlbumDealUtil();
+        bm = BitmapFactory.decodeFile(mimg);
+
+        rv.setImageViewBitmap(R.id.no_small_img, bm);
+
         Intent buttonIntent = new Intent(ACTION_BUTTON);
 
         buttonIntent.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
         PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        rv_big.setOnClickPendingIntent(R.id.bo_button, intent_prev);
+        rv_big.setOnClickPendingIntent(R.id.no_big_button, intent_prev);
 
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         myNotify.contentIntent = contentIntent_main;
 
         manager.notify(NOTIFICATION_FLAG, myNotify);
-
-
-//            case R.id.btn2:
-//                // 清除id为NOTIFICATION_FLAG的通知
-//                manager.cancel(NOTIFICATION_FLAG);
-//                // 清除所有的通知
-//                // manager.cancelAll();
-//                break;
 
     }
 
@@ -439,8 +445,9 @@ public class MainActivity extends AppCompatActivity {
                 switch (buttonId) {
 
                     case BUTTON_PALY_ID:
+                        //do button click action
                         Log.d("========", "play");
-                        mTextView.setVisibility(View.VISIBLE);
+
                         break;
 
                     default:
