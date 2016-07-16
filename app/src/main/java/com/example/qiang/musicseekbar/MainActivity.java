@@ -83,6 +83,12 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap bm = null;
     private RelativeLayout main_layout;
 
+    String url = null;
+    String title = null;
+    String images = null;
+    String time = null;
+    int m_position;
+
     public static int currentListItme = 0;
 
 
@@ -127,10 +133,11 @@ public class MainActivity extends AppCompatActivity {
             player.reset();
             SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
             //读取配置文件中的信息，url地址、曲名、歌曲时间、专辑图像显示
-            String url = share.getString("url", null);
-            String title = share.getString("title", null);
-            String images = share.getString("images", null);
-            String time = share.getString("time", null);
+            url = share.getString("url", null);
+            title = share.getString("title", null);
+            images = share.getString("images", null);
+            time = share.getString("time", null);
+            m_position = share.getInt("position", 0);
             //判断配置文件中是否存在URL地址
             if (url != null) {
                 //如果存在，取出URL地址
@@ -251,7 +258,10 @@ public class MainActivity extends AppCompatActivity {
                     //启动
                     handler.post(updateThread);
                     buttonstart.setBackgroundResource(R.drawable.music_pause);
+                    notificationMethod();
                     ISPLAY = true;
+                    //打开notification
+                    notificationMethod();
                 } else if (ISPLAY == true) {
                     player.pause();
                     ISPLAY = false;
@@ -303,6 +313,7 @@ public class MainActivity extends AppCompatActivity {
         edit.putString("title", mtitle);
         edit.putString("images", back_img);
         edit.putString("time", mtime);
+        edit.putInt("position", position);
         edit.commit();  //保存数据信息
 
         //重置MediaPlayer状态
@@ -377,45 +388,44 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void notificationMethod(View view) {
+    public void notificationMethod() {
         // 在Android进行通知处理，首先需要重系统哪里获得通知管理器NotificationManager，它是一个系统Service。
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        switch (view.getId()) {
-            case R.id.play_button:
 
-                Notification myNotify = new Notification();
-                myNotify.icon = R.drawable.natoli;
-                myNotify.tickerText = "您有新短消息，请注意查收！";
-                myNotify.when = System.currentTimeMillis();
-                myNotify.flags = Notification.FLAG_NO_CLEAR;// 不能够自动清除
-                myNotify.priority = Notification.PRIORITY_MAX;//设置优先级
-                //自定义消息框
-                RemoteViews rv = new RemoteViews(getPackageName(), R.layout.my_notification);
-                RemoteViews rv_big = new RemoteViews(getPackageName(), R.layout.my_big_notification);
-                //分别绑定大小消息框
-                myNotify.contentView = rv;
-                myNotify.bigContentView = rv_big;
 
-                Intent buttonIntent = new Intent(ACTION_BUTTON);
+        Notification myNotify = new Notification();
+        myNotify.icon = R.drawable.natoli;
+        myNotify.tickerText = "您有新短消息，请注意查收！";
+        myNotify.when = System.currentTimeMillis();
+        myNotify.flags = Notification.FLAG_NO_CLEAR;// 不能够自动清除
+        myNotify.priority = Notification.PRIORITY_MAX;//设置优先级
+        //自定义消息框
+        RemoteViews rv = new RemoteViews(getPackageName(), R.layout.my_notification);
+        RemoteViews rv_big = new RemoteViews(getPackageName(), R.layout.my_big_notification);
+        //分别绑定大小消息框
+        myNotify.contentView = rv;
+        myNotify.bigContentView = rv_big;
 
-                buttonIntent.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
-                //这里加了广播，所及INTENT的必须用getBroadcast方法
-                PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                rv_big.setOnClickPendingIntent(R.id.bo_button, intent_prev);
+        Intent buttonIntent = new Intent(ACTION_BUTTON);
 
-                PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
-                myNotify.contentIntent = contentIntent_main;
+        buttonIntent.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
+        //这里加了广播，所及INTENT的必须用getBroadcast方法
+        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv_big.setOnClickPendingIntent(R.id.bo_button, intent_prev);
 
-                manager.notify(NOTIFICATION_FLAG, myNotify);
+        PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
+        myNotify.contentIntent = contentIntent_main;
 
-                break;
+        manager.notify(NOTIFICATION_FLAG, myNotify);
+
+
 //            case R.id.btn2:
 //                // 清除id为NOTIFICATION_FLAG的通知
 //                manager.cancel(NOTIFICATION_FLAG);
 //                // 清除所有的通知
 //                // manager.cancelAll();
 //                break;
-        }
+
     }
 
     public class ButtonBroadcastReceiver extends BroadcastReceiver {

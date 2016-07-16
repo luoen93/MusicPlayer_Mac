@@ -11,9 +11,9 @@
         android:id="@+id/music_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_above="@+id/seekbar1"
         android:paddingLeft="15px"
-        android:paddingRight="10px"
-        android:layout_above="@+id/seekbar1">
+        android:paddingRight="10px">
 
 
     </ListView>
@@ -73,9 +73,9 @@
             android:id="@+id/play_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/music_play"
             android:layout_alignTop="@+id/next_music"
-            android:layout_toStartOf="@+id/next_music" />
+            android:layout_toStartOf="@+id/next_music"
+            android:background="@drawable/music_play" />
 
 
         <Button
