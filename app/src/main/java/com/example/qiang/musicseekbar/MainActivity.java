@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -68,6 +69,10 @@ public class MainActivity extends AppCompatActivity {
     public final static int BUTTON_PALY_ID = 2;
 
     public final static String INTENT_BUTTONID_TAG = "ButtonId";
+    /**
+     * 播放下一首 按钮点击 ID
+     */
+    public final static int BUTTON_NEXT_ID = 3;
 
     private ImageButton buttonstart, buttonnext;
     private TextView opTime, edTime, bottom_title;
@@ -105,7 +110,8 @@ public class MainActivity extends AppCompatActivity {
         init();
         //activity中的按键控制
         setListener();
-
+        //
+        initButtonReceiver();
 
     }
 
@@ -428,17 +434,20 @@ public class MainActivity extends AppCompatActivity {
         rv.setTextViewText(R.id.no_small_title, mtitle);
         rv.setTextViewText(R.id.no_small_singer, martist);
 
-        AlbumDealUtil adu = new AlbumDealUtil();
         bm = BitmapFactory.decodeFile(mimg);
-
         rv.setImageViewBitmap(R.id.no_small_img, bm);
 
-        Intent buttonIntent = new Intent(ACTION_BUTTON);
+        Intent buttonplay = new Intent(ACTION_BUTTON);
 
-        buttonIntent.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
-        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv_big.setOnClickPendingIntent(R.id.no_big_button, intent_prev);
+
+//        Intent intentnext = new Intent("next");
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, 3);
+        PendingIntent intent_next = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv.setOnClickPendingIntent(R.id.no_small_next, intent_next);
 
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         myNotify.contentIntent = contentIntent_main;
@@ -462,13 +471,25 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("========", "play");
 
                         break;
-
+                    case 3:
+                        Log.i("++++++++++", "next");
+                        NextMusic(player);
+                        break;
                     default:
                         break;
                 }
             }
 
         }
+    }
+
+    //绑定
+    public void initButtonReceiver() {
+        bReceiver = new ButtonBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ACTION_BUTTON);
+        registerReceiver(bReceiver, intentFilter);
+
     }
 
 
