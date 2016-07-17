@@ -82,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private ListView mlistview;
     private SeekBar seekBar1;
     private MediaPlayer player;
-    private boolean ISPLAY = false;
+    public static boolean ISPLAY = false;
     private Bitmap bm = null;
     private RelativeLayout main_layout;
 
@@ -261,20 +261,7 @@ public class MainActivity extends AppCompatActivity {
         buttonstart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (ISPLAY == false) {
-                    player.start();
-                    //启动
-                    handler.post(updateThread);
-                    buttonstart.setBackgroundResource(R.drawable.music_pause);
-                    ISPLAY = true;
-                    //打开notification
-//                    notificationMethod();
-                } else if (ISPLAY == true) {
-                    player.pause();
-                    ISPLAY = false;
-                    buttonstart.setBackgroundResource(R.drawable.music_play);
-                }
-
+                PauseMusic();
             }
         });
 
@@ -307,6 +294,23 @@ public class MainActivity extends AppCompatActivity {
                 player.seekTo(dest);
             }
         });
+    }
+
+    public void PauseMusic() {
+        if (ISPLAY == false) {
+            player.start();
+            //启动
+            handler.post(updateThread);
+            buttonstart.setBackgroundResource(R.drawable.music_pause);
+            ISPLAY = true;
+            //打开notification
+//                    notificationMethod();
+        } else if (ISPLAY == true) {
+            player.pause();
+            ISPLAY = false;
+            buttonstart.setBackgroundResource(R.drawable.music_play);
+        }
+
     }
 
     public void NextMusic(MediaPlayer mp) {
@@ -469,7 +473,7 @@ public class MainActivity extends AppCompatActivity {
                     case BUTTON_PALY_ID:
                         //do button click action
                         Log.d("========", "play");
-
+                        PauseMusic();
                         break;
                     case 3:
                         Log.i("++++++++++", "next");

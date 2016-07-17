@@ -107,12 +107,15 @@ public class DBUtil extends Activity {
                 int album_id = cr.getInt(cr.getColumnIndex(MediaStore.Audio.Media.ALBUM_ID));
                 String url = cr.getString(cr.getColumnIndex(MediaStore.Audio.Media.DATA));
                 int duration = cr.getInt(cr.getColumnIndex(MediaStore.Audio.Media.DURATION));
-                if (duration < 5000) {
+
+                String image = getAlbumArt(album_id, context);
+                String mtime = formatTimeFromProgress(duration);
+
+                if (duration < 5000 || image == null) {
                     continue;
                 }
                 Log.i("=====", title + "||" + duration);
-                String image = getAlbumArt(album_id, context);
-                String mtime = formatTimeFromProgress(duration);
+
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("title", title);
