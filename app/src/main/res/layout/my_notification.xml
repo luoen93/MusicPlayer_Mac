@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="60dp"
     android:background="#4D4D4D"
     android:orientation="vertical">
 
@@ -35,17 +35,22 @@
         android:textSize="18dp" />
 
     <ImageButton
-        android:id="@+id/no_small_next"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true" />
+        android:id="@+id/no_small_play"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginRight="20dp"
+        android:layout_centerVertical="true"
+        android:layout_toStartOf="@+id/no_small_next"
+        android:background="@drawable/music_play" />
+
 
     <ImageButton
-        android:id="@+id/no_small_play"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_toLeftOf="@+id/no_small_next"
-        android:background="@drawable/music_play" />
+        android:id="@+id/no_small_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/music_next" />
 
 </RelativeLayout>

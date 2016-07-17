@@ -9,4 +9,5 @@
     <color name="transparent_background">#80000000</color>
     <color name="title_color">#FFFFFF</color>
     <color name="singer_color">#C9C9C9</color>
+    <color name="buttom_singer_color">#EBEBEB</color>
 </resources>

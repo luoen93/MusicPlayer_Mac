@@ -246,6 +246,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
+
         //item点击事件
         mlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -299,6 +302,19 @@ public class MainActivity extends AppCompatActivity {
                 player.seekTo(dest);
             }
         });
+    }
+
+    public void NextMusic(MediaPlayer mp) {
+        //播放完成后，自动切换下一首
+        if (songIndex < mlist.size() - 1) {
+            songIndex = songIndex + 1;
+            songplay(songIndex);
+        } else {
+            mlist.clear();
+            songIndex = 0;
+
+        }
+
     }
 
     //每次播放时候的操作

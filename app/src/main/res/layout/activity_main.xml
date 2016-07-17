@@ -4,7 +4,6 @@
     android:id="@+id/background_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     tools:context=".MainActivity">
 
     <ListView
@@ -21,7 +20,7 @@
     <SeekBar
         android:id="@+id/seekbar1"
         android:layout_width="match_parent"
-        android:layout_height="20dp"
+        android:layout_height="25dp"
         android:layout_above="@+id/music_control"
         android:layout_alignParentStart="true" />
 
@@ -61,30 +60,47 @@
 
         <TextView
             android:id="@+id/bottom_bar_title"
-            android:layout_width="150dp"
+            android:layout_width="match_parent"
             android:layout_height="30dp"
-            android:layout_centerVertical="true"
+            android:layout_marginTop="10dp"
             android:layout_toEndOf="@+id/bottom_bar_img"
+            android:layout_toStartOf="@+id/play_button"
+            android:paddingLeft="5dp"
             android:text="曲名是XXX"
             android:textColor="@color/seekbartime"
             android:textSize="20dp" />
+
+        <TextView
+            android:id="@+id/bottom_bar_singer"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:layout_below="@+id/bottom_bar_title"
+            android:layout_toEndOf="@+id/bottom_bar_img"
+            android:layout_toStartOf="@+id/play_button"
+            android:paddingLeft="5dp"
+            android:text="曲名是XXX"
+            android:textColor="@color/buttom_singer_color"
+            android:textSize="15dp" />
 
         <ImageButton
             android:id="@+id/play_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_alignTop="@+id/next_music"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
             android:layout_toStartOf="@+id/next_music"
             android:background="@drawable/music_play" />
 
 
-        <Button
+        <ImageButton
             android:id="@+id/next_music"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            android:text="next" />
+            android:layout_marginRight="20dp"
+            android:background="@drawable/music_next" />
 
     </RelativeLayout>
 
