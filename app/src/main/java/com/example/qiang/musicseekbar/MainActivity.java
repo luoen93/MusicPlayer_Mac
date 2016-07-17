@@ -69,9 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
     public final static String INTENT_BUTTONID_TAG = "ButtonId";
 
-    private Button buttonnext, buttonlast;
-
-    private ImageButton buttonstart;
+    private ImageButton buttonstart, buttonnext;
     private TextView opTime, edTime, bottom_title;
     private ImageView bottom_img;
 
@@ -88,9 +86,6 @@ public class MainActivity extends AppCompatActivity {
     String images = null;
     String time = null;
     int m_position;
-
-    public static int currentListItme = 0;
-
 
     List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
 
@@ -181,6 +176,7 @@ public class MainActivity extends AppCompatActivity {
     private void findView() {
         //绑定
         buttonstart = (ImageButton) findViewById(R.id.play_button);
+        buttonnext = (ImageButton) findViewById(R.id.next_music);
         opTime = (TextView) findViewById(R.id.opTime);
         edTime = (TextView) findViewById(R.id.edTime);
         main_layout = (RelativeLayout) findViewById(R.id.background_main);
@@ -238,15 +234,12 @@ public class MainActivity extends AppCompatActivity {
                     songIndex = songIndex + 1;
                     songplay(songIndex);
                 } else {
-                    mlist.clear();
                     songIndex = 0;
-
+                    songplay(songIndex);
                 }
 
             }
         });
-
-
 
 
         //item点击事件
@@ -279,6 +272,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        buttonnext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                NextMusic(player);
+            }
+        });
+
         //seekbar的控制
         seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -292,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
-                // TODO Auto-generated method stub
             }
 
             @Override
@@ -310,11 +309,9 @@ public class MainActivity extends AppCompatActivity {
             songIndex = songIndex + 1;
             songplay(songIndex);
         } else {
-            mlist.clear();
             songIndex = 0;
-
+            songplay(songIndex);
         }
-
     }
 
     //每次播放时候的操作
