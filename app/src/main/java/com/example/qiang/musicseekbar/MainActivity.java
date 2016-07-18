@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
     private int songIndex = 0;
 
+    Notification myNotify = new Notification();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -254,6 +255,16 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //播放点击的歌曲
                 songplay(position);
+            }
+        });
+
+        //长按点击事件
+        mlistview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+//                发现如果长按item，会造成onItemClickListener也会被触发，这是因为onItemLongClickListener默认返回为false，而返回false会触发onItemClickListener，这时可以通过将onItemLongClickListener返回true解决。
+                Log.i("+++++", "LongClick");
+                return true;
             }
         });
 
@@ -421,8 +432,6 @@ public class MainActivity extends AppCompatActivity {
         // 在Android进行通知处理，首先需要重系统哪里获得通知管理器NotificationManager，它是一个系统Service。
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-
-        Notification myNotify = new Notification();
         myNotify.icon = R.drawable.natoli;
         myNotify.tickerText = "开始播放";
         myNotify.when = System.currentTimeMillis();
