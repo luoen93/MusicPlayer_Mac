@@ -50,6 +50,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.example.qiang.musicseekbar.adapter.MusicAdapter;
+import com.example.qiang.musicseekbar.beans.ListPos;
 import com.example.qiang.musicseekbar.util.AlbumDealUtil;
 import com.example.qiang.musicseekbar.util.DBUtil;
 
@@ -74,12 +75,13 @@ public class MainActivity extends AppCompatActivity {
      */
     public final static int BUTTON_NEXT_ID = 3;
 
-    private ImageButton buttonstart, buttonnext;
-    private TextView opTime, edTime, bottom_title;
+    private ImageButton buttonstart, buttonnext, buttonpreview;
+    private TextView opTime, edTime, bottom_title, bottom_singer;
     private ImageView bottom_img;
 
 
     private ListView mlistview;
+    private MusicAdapter mAdapter;
     private SeekBar seekBar1;
     private MediaPlayer player;
     public static boolean ISPLAY = false;
@@ -91,6 +93,8 @@ public class MainActivity extends AppCompatActivity {
     String images = null;
     String time = null;
     int m_position;
+    int cur_position = -1;
+    ListPos lp = new ListPos();
 
     List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
 
@@ -184,18 +188,23 @@ public class MainActivity extends AppCompatActivity {
         //绑定
         buttonstart = (ImageButton) findViewById(R.id.play_button);
         buttonnext = (ImageButton) findViewById(R.id.next_music);
+
         opTime = (TextView) findViewById(R.id.opTime);
         edTime = (TextView) findViewById(R.id.edTime);
         main_layout = (RelativeLayout) findViewById(R.id.background_main);
         bottom_img = (ImageView) findViewById(R.id.bottom_bar_img);
         bottom_title = (TextView) findViewById(R.id.bottom_bar_title);
+        bottom_singer = (TextView) findViewById(R.id.bottom_bar_singer);
 
         seekBar1 = (SeekBar) findViewById(R.id.seekbar1);
 
         mlistview = (ListView) findViewById(R.id.music_list);
         //listview数据的读取
         mlist = DBUtil.BaseMusicList(this);
-        mlistview.setAdapter(new MusicAdapter(this, mlist));
+//        mlistview.setAdapter(new MusicAdapter(this, mlist));
+
+        mAdapter = new MusicAdapter(this, mlist);
+        mlistview.setAdapter(mAdapter);
 
     }
 
@@ -237,13 +246,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCompletion(MediaPlayer mp) {
                 //播放完成后，自动切换下一首
-                if (songIndex < mlist.size() - 1) {
-                    songIndex = songIndex + 1;
-                    songplay(songIndex);
-                } else {
-                    songIndex = 0;
-                    songplay(songIndex);
-                }
+//                if (songIndex < mlist.size() - 1) {
+//                    songIndex = songIndex + 1;
+//                    songplay(songIndex);
+//                } else {
+//                    songIndex = 0;
+//                    songplay(songIndex);
+//                }
+                NextMusic(player);
 
             }
         });
@@ -261,9 +271,12 @@ public class MainActivity extends AppCompatActivity {
         //长按点击事件
         mlistview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
 //                发现如果长按item，会造成onItemClickListener也会被触发，这是因为onItemLongClickListener默认返回为false，而返回false会触发onItemClickListener，这时可以通过将onItemLongClickListener返回true解决。
                 Log.i("+++++", "LongClick");
+                cur_position = position;
+                lp.setList_postion(cur_position);
+                mAdapter.notifyDataSetChanged();
                 return true;
             }
         });
@@ -362,6 +375,8 @@ public class MainActivity extends AppCompatActivity {
             player.setDataSource(murl);
             player.prepare();
             bottom_title.setText(mtitle);
+            bottom_singer.setText(martist);
+
             if (back_img == null) {
                 main_layout.setBackgroundResource(R.drawable.natoli);
                 bottom_img.setImageResource(R.drawable.natoli);
@@ -450,16 +465,16 @@ public class MainActivity extends AppCompatActivity {
         bm = BitmapFactory.decodeFile(mimg);
         rv.setImageViewBitmap(R.id.no_small_img, bm);
 
-        Intent buttonplay = new Intent(ACTION_BUTTON);
+        Intent buttonclick = new Intent(ACTION_BUTTON);
 
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
+        buttonclick.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
-        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
-        rv_big.setOnClickPendingIntent(R.id.no_big_button, intent_prev);
+        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonclick, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv_big.setOnClickPendingIntent(R.id.no_big_play, intent_prev);
 
-//        Intent intentnext = new Intent("next");
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, 3);
-        PendingIntent intent_next = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent buttonnext = new Intent("next");
+        buttonnext.putExtra(INTENT_BUTTONID_TAG, 3);
+        PendingIntent intent_next = PendingIntent.getBroadcast(this, 3, buttonnext, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_next, intent_next);
 
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
@@ -474,24 +489,42 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            if (action.equals(ACTION_BUTTON)) {
-                //通过传递过来的ID判断按钮点击属性或者通过getResultCode()获得相应点击事件
-                int buttonId = intent.getIntExtra(INTENT_BUTTONID_TAG, 0);
-                switch (buttonId) {
-
-                    case BUTTON_PALY_ID:
-                        //do button click action
-                        Log.d("========", "play");
+            int buttonId = intent.getIntExtra(INTENT_BUTTONID_TAG, 0);
+            switch (action) {
+                case ACTION_BUTTON:
+                    if (buttonId == BUTTON_PALY_ID) {
+                        Log.i("========", "play");
                         PauseMusic();
                         break;
-                    case 3:
-                        Log.i("++++++++++", "next");
-                        NextMusic(player);
-                        break;
-                    default:
-                        break;
-                }
+                    }
+                    break;
+                case "next":
+                    if (buttonId == 3) {
+                        Log.i("========", "next");
+                    }
+                    break;
+                default:
+
+                    break;
             }
+//            if (action.equals(ACTION_BUTTON)) {
+//                //通过传递过来的ID判断按钮点击属性或者通过getResultCode()获得相应点击事件
+//                int buttonId = intent.getIntExtra(INTENT_BUTTONID_TAG, 0);
+//                switch (buttonId) {
+//
+//                    case BUTTON_PALY_ID:
+//                        //do button click action
+//                        Log.d("========", "play");
+//                        PauseMusic();
+//                        break;
+//                    case 3:
+//                        Log.i("++++++++++", "next");
+//                        NextMusic(player);
+//                        break;
+//                    default:
+//                        break;
+//                }
+//            }
 
         }
     }

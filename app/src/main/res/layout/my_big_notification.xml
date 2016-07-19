@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="100dp"
     android:background="#4D4D4D"
     android:orientation="vertical">
 
@@ -12,19 +12,59 @@
         android:src="@drawable/colorful" />
 
     <TextView
-        android:id="@+id/no__big_title"
+        android:id="@+id/no_big_title"
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_toRightOf="@+id/no_big_img"
         android:paddingLeft="10dp"
         android:text="Title"
-        android:textColor="#000000"
+        android:textColor="@color/title_color"
         android:textSize="25dp" />
 
-    <Button
-        android:id="@+id/no_big_button"
-        android:layout_width="50dp"
+    <TextView
+        android:id="@+id/no_big_singer"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_below="@+id/no_big_title"
+        android:layout_toRightOf="@+id/no_big_img"
+        android:paddingLeft="10dp"
+        android:text="Singer"
+        android:textColor="@color/singer_color"
+        android:textSize="13dp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_below="@+id/no__big_title"
-        android:layout_toRightOf="@+id/no_big_img" />
+        android:layout_below="@+id/no_big_singer"
+        android:layout_toRightOf="@+id/no_big_img">
+
+        <ImageButton
+            android:id="@+id/no_big_next"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="30dp"
+            android:layout_toRightOf="@+id/no_big_play"
+            android:background="@drawable/music_next" />
+
+        <ImageButton
+            android:id="@+id/no_big_play"
+            android:layout_width="47dp"
+            android:layout_height="47dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:background="@drawable/music_play" />
+
+        <ImageButton
+            android:id="@+id/no_big_preview"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="30dp"
+            android:layout_toLeftOf="@+id/no_big_play"
+            android:background="@drawable/music_preview" />
+
+    </RelativeLayout>
+
+
 </RelativeLayout>

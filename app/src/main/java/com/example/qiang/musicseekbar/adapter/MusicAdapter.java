@@ -9,9 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.qiang.musicseekbar.R;
+import com.example.qiang.musicseekbar.beans.ListPos;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +44,7 @@ public class MusicAdapter extends BaseAdapter {
         public TextView artist;
         public TextView time;
         public ImageView images;
+        public RelativeLayout InvisibleLayout;
     }
 
     @Override
@@ -76,6 +79,7 @@ public class MusicAdapter extends BaseAdapter {
             zujian.artist = (TextView) convertView.findViewById(R.id.music_artist);
             zujian.time = (TextView) convertView.findViewById(R.id.music_time);
             zujian.images = (ImageView) convertView.findViewById(R.id.music_img);
+            zujian.InvisibleLayout = (RelativeLayout) convertView.findViewById(R.id.list_item_delete);
 
             convertView.setTag(zujian);
         } else {
@@ -93,6 +97,13 @@ public class MusicAdapter extends BaseAdapter {
             bm = BitmapFactory.decodeFile(mimgs);
             BitmapDrawable bmpDraw = new BitmapDrawable(bm);
             zujian.images.setImageDrawable(bmpDraw);
+        }
+        int np = ListPos.getList_postion();
+        if (position == np) {
+            zujian.InvisibleLayout.setVisibility(View.VISIBLE);
+        } else {
+            zujian.InvisibleLayout.setVisibility(View.GONE);
+
         }
 
         return convertView;
