@@ -48,8 +48,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import com.example.qiang.musicseekbar.adapter.MusicAdapter;
+import com.example.qiang.musicseekbar.beans.ListPos;
 import com.example.qiang.musicseekbar.util.AlbumDealUtil;
 import com.example.qiang.musicseekbar.util.DBUtil;
 
@@ -81,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
 
     private ListView mlistview;
     private SeekBar seekBar1;
+    private ListPos lp = new ListPos();
     private MediaPlayer player;
     public static boolean ISPLAY = false;
     private Bitmap bm = null;
@@ -91,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
     String images = null;
     String time = null;
     int m_position;
+    int cur_position = -1;
+
+    private MusicAdapter mAdapter;
 
     List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
 
@@ -195,7 +202,10 @@ public class MainActivity extends AppCompatActivity {
         mlistview = (ListView) findViewById(R.id.music_list);
         //listview数据的读取
         mlist = DBUtil.BaseMusicList(this);
-        mlistview.setAdapter(new MusicAdapter(this, mlist));
+//        mlistview.setAdapter(new MusicAdapter(this, mlist));
+
+        mAdapter = new MusicAdapter(this, mlist);
+        mlistview.setAdapter(mAdapter);
 
     }
 
@@ -261,8 +271,12 @@ public class MainActivity extends AppCompatActivity {
         //长按点击事件
         mlistview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
 //                发现如果长按item，会造成onItemClickListener也会被触发，这是因为onItemLongClickListener默认返回为false，而返回false会触发onItemClickListener，这时可以通过将onItemLongClickListener返回true解决。
+                cur_position = position;
+                lp.setList_postion(cur_position);
+                mAdapter.notifyDataSetChanged();
+
                 Log.i("+++++", "LongClick");
                 return true;
             }
@@ -305,6 +319,36 @@ public class MainActivity extends AppCompatActivity {
                 player.seekTo(dest);
             }
         });
+    }
+
+    //监控按键
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        //监控返回键
+        if(keyCode == KeyEvent.KEYCODE_BACK)
+        {
+            exitBy2Click();      //调用双击退出函数
+        }
+        return false;
+    }
+    private static Boolean isExit = false;
+
+    private void exitBy2Click() {
+        Timer tExit = null;
+        if (isExit == false) {
+            isExit = true; // 准备退出
+            Toast.makeText(this, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+            tExit = new Timer();
+            tExit.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    isExit = false; // 取消退出
+                }
+            }, 2000); // 如果2秒钟内没有按下返回键，则启动定时器取消掉刚才执行的任务
+
+        } else {
+            finish();
+            System.exit(0);
+        }
     }
 
     public void PauseMusic() {

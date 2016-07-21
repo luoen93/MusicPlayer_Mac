@@ -4,14 +4,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.example.qiang.musicseekbar.R;
+import com.example.qiang.musicseekbar.beans.ListPos;
 
 import java.util.List;
 import java.util.Map;
@@ -42,6 +46,8 @@ public class MusicAdapter extends BaseAdapter {
         public TextView artist;
         public TextView time;
         public ImageView images;
+        public Button de_button;
+        public RelativeLayout rela_delete;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class MusicAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         Music zujian = null;
         if (convertView == null) {
             zujian = new Music();
@@ -76,6 +82,8 @@ public class MusicAdapter extends BaseAdapter {
             zujian.artist = (TextView) convertView.findViewById(R.id.music_artist);
             zujian.time = (TextView) convertView.findViewById(R.id.music_time);
             zujian.images = (ImageView) convertView.findViewById(R.id.music_img);
+            zujian.de_button = (Button) convertView.findViewById(R.id.list_item_delete_btn);
+            zujian.rela_delete = (RelativeLayout) convertView.findViewById(R.id.list_item_delete);
 
             convertView.setTag(zujian);
         } else {
@@ -93,6 +101,20 @@ public class MusicAdapter extends BaseAdapter {
             bm = BitmapFactory.decodeFile(mimgs);
             BitmapDrawable bmpDraw = new BitmapDrawable(bm);
             zujian.images.setImageDrawable(bmpDraw);
+        }
+
+        int np = ListPos.getList_postion();
+        if (position == np) {
+            zujian.rela_delete.setVisibility(View.VISIBLE);
+            zujian.de_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Log.i("=======", "||||" + position);
+                }
+            });
+        } else {
+            zujian.rela_delete.setVisibility(View.GONE);
+
         }
 
         return convertView;
