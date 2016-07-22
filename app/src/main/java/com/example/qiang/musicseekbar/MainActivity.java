@@ -78,8 +78,10 @@ public class MainActivity extends AppCompatActivity {
     public final static int BUTTON_NEXT_ID = 3;
 
     private ImageButton buttonstart, buttonnext;
-    private TextView opTime, edTime, bottom_title;
+    private TextView opTime, edTime, bottom_title, bottom_singer;
     private ImageView bottom_img;
+
+    private ImageButton small_play, big_play;
 
 
     private ListView mlistview;
@@ -94,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     String title = null;
     String images = null;
     String time = null;
+    String singer = null;
     int m_position;
     int cur_position = -1;
 
@@ -152,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
             title = share.getString("title", null);
             images = share.getString("images", null);
             time = share.getString("time", null);
+            singer = share.getString("artist", null);
             m_position = share.getInt("position", 0);
             //判断配置文件中是否存在URL地址
             if (url != null) {
@@ -160,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
                 player.prepare();
                 //设置歌曲名
                 bottom_title.setText(title);
+                bottom_singer.setText(singer);
                 if (images == null) {
                     //如果不存在专辑图片，使用默认图片
                     main_layout.setBackgroundResource(R.drawable.natoli);
@@ -177,6 +182,7 @@ public class MainActivity extends AppCompatActivity {
                 //设置播放时间
                 edTime.setText(time);
                 seekBar1.setMax(player.getDuration());
+                notificationMethod(title, singer, images);
             } else {
                 //Do nothing
             }
@@ -196,6 +202,7 @@ public class MainActivity extends AppCompatActivity {
         main_layout = (RelativeLayout) findViewById(R.id.background_main);
         bottom_img = (ImageView) findViewById(R.id.bottom_bar_img);
         bottom_title = (TextView) findViewById(R.id.bottom_bar_title);
+        bottom_singer = (TextView) findViewById(R.id.bottom_bar_singer);
 
         seekBar1 = (SeekBar) findViewById(R.id.seekbar1);
 
@@ -364,6 +371,7 @@ public class MainActivity extends AppCompatActivity {
             //启动
             handler.post(updateThread);
             buttonstart.setBackgroundResource(R.drawable.music_pause);
+
             ISPLAY = true;
             //打开notification
 //                    notificationMethod();
@@ -413,6 +421,7 @@ public class MainActivity extends AppCompatActivity {
             player.setDataSource(murl);
             player.prepare();
             bottom_title.setText(mtitle);
+            bottom_singer.setText(martist);
             Log.i(back_img, "++++++");
             if (back_img == "default") {
                 main_layout.setBackgroundResource(R.drawable.natoli);
@@ -495,24 +504,47 @@ public class MainActivity extends AppCompatActivity {
         //分别绑定大小消息框
         myNotify.contentView = rv;
         myNotify.bigContentView = rv_big;
-
+        //默认notification
         rv.setTextViewText(R.id.no_small_title, mtitle);
         rv.setTextViewText(R.id.no_small_singer, martist);
+        //扩大版的notification
+        rv_big.setTextViewText(R.id.no_big_title, mtitle);
+        rv_big.setTextViewText(R.id.no_big_singer, martist);
+        //获取图片
+        if (mimg == "default") {
+            rv.setImageViewResource(R.id.no_small_img, R.drawable.natoli);
+            rv_big.setImageViewResource(R.id.no_small_img, R.drawable.natoli);
+        } else {
+            bm = BitmapFactory.decodeFile(mimg);
+            rv.setImageViewBitmap(R.id.no_small_img, bm);
+            rv_big.setImageViewBitmap(R.id.no_big_img, bm);
+        }
 
-        bm = BitmapFactory.decodeFile(mimg);
-        rv.setImageViewBitmap(R.id.no_small_img, bm);
+
 
         Intent buttonplay = new Intent(ACTION_BUTTON);
 
         buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
-        PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
-        rv_big.setOnClickPendingIntent(R.id.no_big_play, intent_prev);
+        PendingIntent intent_big_play = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv_big.setOnClickPendingIntent(R.id.no_big_play, intent_big_play);
+
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, 4);
+        PendingIntent intent_big_next = PendingIntent.getBroadcast(this, 4, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv_big.setOnClickPendingIntent(R.id.no_big_next, intent_big_next);
+
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, 5);
+        PendingIntent intent_big_prev = PendingIntent.getBroadcast(this, 5, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv_big.setOnClickPendingIntent(R.id.no_big_preview, intent_big_prev);
 
 //        Intent intentnext = new Intent("next");
         buttonplay.putExtra(INTENT_BUTTONID_TAG, 3);
-        PendingIntent intent_next = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
-        rv.setOnClickPendingIntent(R.id.no_small_next, intent_next);
+        PendingIntent intent_small_next = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv.setOnClickPendingIntent(R.id.no_small_next, intent_small_next);
+
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, 6);
+        PendingIntent intent_small_play = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        rv.setOnClickPendingIntent(R.id.no_small_play, intent_small_play);
 
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         myNotify.contentIntent = contentIntent_main;
@@ -540,6 +572,17 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("++++++++++", "next");
                         NextMusic(player);
                         break;
+                    case 4:
+                        Log.i("++++++++++", "big_next");
+                        NextMusic(player);
+                        break;
+                    case 5:
+                        Log.i("++++++++++", "big_prev");
+                        break;
+                    case 6:
+                        Log.i("++++++++++", "small_play");
+                        PauseMusic();
+                        break;
                     default:
                         break;
                 }
@@ -555,6 +598,11 @@ public class MainActivity extends AppCompatActivity {
         intentFilter.addAction(ACTION_BUTTON);
         registerReceiver(bReceiver, intentFilter);
 
+    }
+
+    public void btn_NotificationFlag() {
+        small_play = (ImageButton) findViewById(R.id.no_small_play);
+        big_play = (ImageButton) findViewById(R.id.no_big_play);
     }
 
 
