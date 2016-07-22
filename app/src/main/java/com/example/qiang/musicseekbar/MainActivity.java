@@ -324,12 +324,19 @@ public class MainActivity extends AppCompatActivity {
     //监控按键
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         //监控返回键
-        if(keyCode == KeyEvent.KEYCODE_BACK)
-        {
-            exitBy2Click();      //调用双击退出函数
+        int nps = ListPos.getList_postion();
+        if (nps != -1) {
+            nps = -1;
+            lp.setList_postion(nps);
+            mAdapter.notifyDataSetChanged();
+        } else {
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
+                exitBy2Click();      //调用双击退出函数
+            }
         }
         return false;
     }
+
     private static Boolean isExit = false;
 
     private void exitBy2Click() {
@@ -406,7 +413,8 @@ public class MainActivity extends AppCompatActivity {
             player.setDataSource(murl);
             player.prepare();
             bottom_title.setText(mtitle);
-            if (back_img == null) {
+            Log.i(back_img, "++++++");
+            if (back_img == "default") {
                 main_layout.setBackgroundResource(R.drawable.natoli);
                 bottom_img.setImageResource(R.drawable.natoli);
             } else {
@@ -463,7 +471,7 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.quit1:
                 //设置listview数据源，并自定义ListView
-                mlist = DBUtil.musicrs(this);
+                mlist = DBUtil.musicrs(this, this);
                 mlistview.setAdapter(new MusicAdapter(this, mlist));
                 //数据库操作
                 return true;
@@ -499,7 +507,7 @@ public class MainActivity extends AppCompatActivity {
         buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
         PendingIntent intent_prev = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
-        rv_big.setOnClickPendingIntent(R.id.no_big_button, intent_prev);
+        rv_big.setOnClickPendingIntent(R.id.no_big_play, intent_prev);
 
 //        Intent intentnext = new Intent("next");
         buttonplay.putExtra(INTENT_BUTTONID_TAG, 3);

@@ -1,11 +1,15 @@
 package com.example.qiang.musicseekbar.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import com.example.qiang.musicseekbar.DataBaseHelper;
@@ -88,9 +92,17 @@ public class DBUtil extends Activity {
     }
 
     //点击从sd卡获取所有音频文件
-    public static List<Map<String, Object>> musicrs(Context context) {
+    public static List<Map<String, Object>> musicrs(Context context,Activity activity) {
         DataBaseHelper dbhelper = new DataBaseHelper(context);
         List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
+        int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 0;
+        //判断是否有读取权限6.0新加特性
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            //申请WRITE_EXTERNAL_STORAGE权限
+            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    WRITE_EXTERNAL_STORAGE_REQUEST_CODE);
+        }
 
         Cursor cr = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, null, null, null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
 
@@ -109,10 +121,14 @@ public class DBUtil extends Activity {
                 int duration = cr.getInt(cr.getColumnIndex(MediaStore.Audio.Media.DURATION));
 
                 String image = getAlbumArt(album_id, context);
+                //
+                if (image == null) {
+                    continue;
+                }
                 String mtime = formatTimeFromProgress(duration);
 
                 if (duration < 5000 || image == null) {
-                    continue;
+                    image = "default";
                 }
                 Log.i("=====", title + "||" + duration);
 
