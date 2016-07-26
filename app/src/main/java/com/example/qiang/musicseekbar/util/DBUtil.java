@@ -92,7 +92,7 @@ public class DBUtil extends Activity {
     }
 
     //点击从sd卡获取所有音频文件
-    public static List<Map<String, Object>> musicrs(Context context,Activity activity) {
+    public static List<Map<String, Object>> musicrs(Context context, Activity activity) {
         DataBaseHelper dbhelper = new DataBaseHelper(context);
         List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
         int WRITE_EXTERNAL_STORAGE_REQUEST_CODE = 0;
@@ -130,8 +130,6 @@ public class DBUtil extends Activity {
                 if (duration < 5000 || image == null) {
                     image = "default";
                 }
-                Log.i("=====", title + "||" + duration);
-
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("title", title);
@@ -150,6 +148,7 @@ public class DBUtil extends Activity {
         return mlist;
     }
 
+    //将获取音乐信息插入sqlite中
     public static void insertData(DataBaseHelper myHelper, Map<String, Object> map) {
         String music_title = map.get("title").toString();
         String music_album = map.get("album").toString();
@@ -177,10 +176,18 @@ public class DBUtil extends Activity {
                     + music_duration + "','"
                     + music_time + "');");
 
-            Log.i("Insert", "=========");
             db.close();
 
         }
+    }
+
+    //删除歌曲
+    public static void deleteData(DataBaseHelper myHelper, String Music_title) {
+        SQLiteDatabase d_db = myHelper.getWritableDatabase();
+        d_db.delete("music_info", "m_title=?", new String[]{Music_title});
+        Log.i("已删除", Music_title);
+        d_db.close();
+
     }
 
     //根据地址信息，获取专辑封面

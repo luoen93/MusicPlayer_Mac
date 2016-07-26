@@ -13,9 +13,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.example.qiang.musicseekbar.DataBaseHelper;
 import com.example.qiang.musicseekbar.R;
 import com.example.qiang.musicseekbar.beans.ListPos;
+import com.example.qiang.musicseekbar.util.DBUtil;
 
 import java.util.List;
 import java.util.Map;
@@ -27,13 +30,17 @@ public class MusicAdapter extends BaseAdapter {
 
     private List<Map<String, Object>> data;
     private LayoutInflater layoutInflater;
+
     private Context context;
+    DBUtil d_dbutil = new DBUtil();
+    DataBaseHelper d_helper;
     Bitmap bm = null;
 
     public MusicAdapter(Context context, List<Map<String, Object>> data) {
         this.context = context;
         this.data = data;
         this.layoutInflater = LayoutInflater.from(context);
+        this.d_helper = new DataBaseHelper(context);
     }
 
     /**
@@ -109,9 +116,11 @@ public class MusicAdapter extends BaseAdapter {
             zujian.de_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Log.i("=======", "||||" + position);
+                    d_dbutil.deleteData(d_helper, (String) data.get(position).get("title"));
+
                 }
             });
+
         } else {
             zujian.rela_delete.setVisibility(View.GONE);
 

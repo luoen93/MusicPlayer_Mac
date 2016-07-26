@@ -60,22 +60,23 @@ public class MainActivity extends AppCompatActivity {
 
     //action的定义
     public final static String ACTION_BUTTON = "ButtonClick";
+
     //定义一个广播
     public ButtonBroadcastReceiver bReceiver;
-
-    private TextView mTextView;
     //消息的标识
     private static final int NOTIFICATION_FLAG = 1;
     /**
      * 播放/暂停 按钮点击 ID
      */
-    public final static int BUTTON_PALY_ID = 2;
+    public final static int BUTTON_SMALL_PALY_ID = 2;
+    private static final int BUTTON_SMALL_NEXT_ID = 3;
+    public final static int BUTTON_BIG_PALY_ID = 4;
+    private static final int BUTTON_BIG_NEXT_ID = 5;
+    private static final int BUTTON_BIG_PREVIEW_ID = 6;
+
 
     public final static String INTENT_BUTTONID_TAG = "ButtonId";
-    /**
-     * 播放下一首 按钮点击 ID
-     */
-    public final static int BUTTON_NEXT_ID = 3;
+
 
     private ImageButton buttonstart, buttonnext;
     private TextView opTime, edTime, bottom_title, bottom_singer;
@@ -129,18 +130,6 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         //销毁程序时候的操作
-        //指定操作的文件名称
-//        SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
-//        SharedPreferences.Editor edit = share.edit(); //编辑文件
-//        edit.putString("url", "natoli");
-//        edit.commit();  //保存数据信息
-
-        // 清除id为NOTIFICATION_FLAG的通知
-        // manager.cancel(NOTIFICATION_FLAG);
-        // 清除所有的通知
-        // manager.cancelAll();
-        // break;
-
 
         Log.i("======", "destroy");
     }
@@ -233,22 +222,6 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void setListener() {
-//        button1.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View arg0) {
-//                player.start();
-//                //启动
-//                handler.post(updateThread);
-//            }
-//        });
-//        button2.setOnClickListener(new Button.OnClickListener() {
-//            @Override
-//            public void onClick(View arg0) {
-//                player.pause();
-//                //取消线程
-////                handler.removeCallbacks(updateThread);
-//            }
-//        });
 
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
@@ -394,6 +367,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void PreviewMusic() {
+        //do last music
+    }
+
     //每次播放时候的操作
     private void songplay(int position) {
 
@@ -480,8 +457,12 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.quit1:
                 //设置listview数据源，并自定义ListView
-                mlist = DBUtil.musicrs(this, this);
-                mlistview.setAdapter(new MusicAdapter(this, mlist));
+//                mlist = DBUtil.musicrs(this, this);
+//                mlistview.setAdapter(new MusicAdapter(this, mlist));
+                mlist = DBUtil.BaseMusicList(this);
+                mAdapter = new MusicAdapter(this, mlist);
+                mlistview.setAdapter(mAdapter);
+                mAdapter.notifyDataSetChanged();
                 //数据库操作
                 return true;
             default:
@@ -521,29 +502,28 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-
         Intent buttonplay = new Intent(ACTION_BUTTON);
 
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_PALY_ID);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_BIG_PALY_ID);
         //这里加了广播，所及INTENT的必须用getBroadcast方法
-        PendingIntent intent_big_play = PendingIntent.getBroadcast(this, 2, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent intent_big_play = PendingIntent.getBroadcast(this, BUTTON_BIG_PALY_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv_big.setOnClickPendingIntent(R.id.no_big_play, intent_big_play);
 
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, 4);
-        PendingIntent intent_big_next = PendingIntent.getBroadcast(this, 4, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_BIG_NEXT_ID);
+        PendingIntent intent_big_next = PendingIntent.getBroadcast(this, BUTTON_BIG_NEXT_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv_big.setOnClickPendingIntent(R.id.no_big_next, intent_big_next);
 
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, 5);
-        PendingIntent intent_big_prev = PendingIntent.getBroadcast(this, 5, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_BIG_PREVIEW_ID);
+        PendingIntent intent_big_prev = PendingIntent.getBroadcast(this, BUTTON_BIG_PREVIEW_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv_big.setOnClickPendingIntent(R.id.no_big_preview, intent_big_prev);
 
 //        Intent intentnext = new Intent("next");
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, 3);
-        PendingIntent intent_small_next = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_SMALL_NEXT_ID);
+        PendingIntent intent_small_next = PendingIntent.getBroadcast(this, BUTTON_SMALL_NEXT_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_next, intent_small_next);
 
-        buttonplay.putExtra(INTENT_BUTTONID_TAG, 6);
-        PendingIntent intent_small_play = PendingIntent.getBroadcast(this, 3, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
+        buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_SMALL_PALY_ID);
+        PendingIntent intent_small_play = PendingIntent.getBroadcast(this, BUTTON_SMALL_PALY_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_play, intent_small_play);
 
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
@@ -562,26 +542,21 @@ public class MainActivity extends AppCompatActivity {
                 //通过传递过来的ID判断按钮点击属性或者通过getResultCode()获得相应点击事件
                 int buttonId = intent.getIntExtra(INTENT_BUTTONID_TAG, 0);
                 switch (buttonId) {
-
-                    case BUTTON_PALY_ID:
+                    case BUTTON_BIG_PALY_ID:
                         //do button click action
-                        Log.d("========", "play");
                         PauseMusic();
                         break;
-                    case 3:
-                        Log.i("++++++++++", "next");
+                    case BUTTON_BIG_NEXT_ID:
                         NextMusic(player);
                         break;
-                    case 4:
-                        Log.i("++++++++++", "big_next");
-                        NextMusic(player);
+                    case BUTTON_BIG_PREVIEW_ID:
+                        PreviewMusic();
                         break;
-                    case 5:
-                        Log.i("++++++++++", "big_prev");
-                        break;
-                    case 6:
-                        Log.i("++++++++++", "small_play");
+                    case BUTTON_SMALL_PALY_ID:
                         PauseMusic();
+                        break;
+                    case BUTTON_SMALL_NEXT_ID:
+                        NextMusic(player);
                         break;
                     default:
                         break;
@@ -590,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+
 
     //绑定
     public void initButtonReceiver() {
