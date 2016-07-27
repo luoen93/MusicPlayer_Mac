@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int BUTTON_BIG_NEXT_ID = 5;
     private static final int BUTTON_BIG_PREVIEW_ID = 6;
 
+    public static boolean PLAY_BUTTON_FLAG = false;
 
     public final static String INTENT_BUTTONID_TAG = "ButtonId";
 
@@ -81,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton buttonstart, buttonnext;
     private TextView opTime, edTime, bottom_title, bottom_singer;
     private ImageView bottom_img;
+    public ImageButton splay, bplay;
 
     private ImageButton small_play, big_play;
 
@@ -146,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
             time = share.getString("time", null);
             singer = share.getString("artist", null);
             m_position = share.getInt("position", 0);
+            notificationMethod(title, singer, images);
             //判断配置文件中是否存在URL地址
             if (url != null) {
                 //如果存在，取出URL地址
@@ -171,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
                 //设置播放时间
                 edTime.setText(time);
                 seekBar1.setMax(player.getDuration());
-                notificationMethod(title, singer, images);
+
             } else {
                 //Do nothing
             }
@@ -256,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                 cur_position = position;
                 lp.setList_postion(cur_position);
                 mAdapter.notifyDataSetChanged();
-
+                notificationMethod(title, singer, images);
                 Log.i("+++++", "LongClick");
                 return true;
             }
@@ -267,6 +270,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 PauseMusic();
+//                FlagChanges();
             }
         });
 
@@ -344,14 +348,19 @@ public class MainActivity extends AppCompatActivity {
             //启动
             handler.post(updateThread);
             buttonstart.setBackgroundResource(R.drawable.music_pause);
-
+            PLAY_BUTTON_FLAG = true;
+            notificationMethod(title, singer, images);
             ISPLAY = true;
+
             //打开notification
 //                    notificationMethod();
         } else if (ISPLAY == true) {
             player.pause();
-            ISPLAY = false;
+            PLAY_BUTTON_FLAG = true;
+            notificationMethod(title, singer, images);
             buttonstart.setBackgroundResource(R.drawable.music_play);
+            ISPLAY = false;
+
         }
 
     }
@@ -392,6 +401,8 @@ public class MainActivity extends AppCompatActivity {
         edit.putInt("position", position);
         edit.commit();  //保存数据信息
 
+        notificationMethod(mtitle, martist, back_img);
+
         //重置MediaPlayer状态
         player.reset();
         try {
@@ -428,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         seekBar1.setMax(player.getDuration());
-        notificationMethod(mtitle, martist, back_img);
+
     }
 
     private String formatTimeFromProgress(int progress) {
@@ -457,11 +468,15 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.quit1:
                 //设置listview数据源，并自定义ListView
-                mlist.clear();
-                mlist.addAll(DBUtil.BaseMusicList(this));
+//                mlist.clear();
+//                mlist.addAll(DBUtil.BaseMusicList(this));
+
+                mlist = DBUtil.musicrs(this, this);
+//                mlistview.setAdapter(new MusicAdapter(this, mlist));
+
                 mAdapter = new MusicAdapter(this, mlist);
-//                mlistview.setAdapter(mAdapter);
-                mAdapter.notifyDataSetChanged();
+                mlistview.setAdapter(mAdapter);
+//                mAdapter.notifyDataSetChanged();
                 //数据库操作
                 return true;
             default:
@@ -494,7 +509,7 @@ public class MainActivity extends AppCompatActivity {
         if (mimg == "default") {
             rv.setImageViewResource(R.id.no_small_img, R.drawable.natoli);
             rv_big.setImageViewResource(R.id.no_small_img, R.drawable.natoli);
-        } else {
+        } else if (mimg != null) {
             bm = BitmapFactory.decodeFile(mimg);
             rv.setImageViewBitmap(R.id.no_small_img, bm);
             rv_big.setImageViewBitmap(R.id.no_big_img, bm);
@@ -525,6 +540,20 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent intent_small_play = PendingIntent.getBroadcast(this, BUTTON_SMALL_PALY_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_play, intent_small_play);
 
+        if (PLAY_BUTTON_FLAG == true) {
+            if (ISPLAY == false) {
+                rv_big.setImageViewResource(R.id.no_big_play, R.drawable.music_pause);
+                ISPLAY = true;
+                PLAY_BUTTON_FLAG = false;
+                Log.i("========", "|||" + ISPLAY);
+            } else if (ISPLAY == true) {
+                rv_big.setImageViewResource(R.id.no_big_play, R.drawable.music_play);
+                ISPLAY = false;
+                Log.i("========", "|||" + ISPLAY);
+                PLAY_BUTTON_FLAG = false;
+            }
+        }
+
         PendingIntent contentIntent_main = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), 0);
         myNotify.contentIntent = contentIntent_main;
 
@@ -544,15 +573,19 @@ public class MainActivity extends AppCompatActivity {
                     case BUTTON_BIG_PALY_ID:
                         //do button click action
                         PauseMusic();
+
                         break;
                     case BUTTON_BIG_NEXT_ID:
                         NextMusic(player);
+
                         break;
                     case BUTTON_BIG_PREVIEW_ID:
                         PreviewMusic();
+
                         break;
                     case BUTTON_SMALL_PALY_ID:
                         PauseMusic();
+
                         break;
                     case BUTTON_SMALL_NEXT_ID:
                         NextMusic(player);
@@ -575,10 +608,33 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void btn_NotificationFlag() {
-        small_play = (ImageButton) findViewById(R.id.no_small_play);
-        big_play = (ImageButton) findViewById(R.id.no_big_play);
-    }
+//    public void FlagChanges() {
+//        if (PLAY_FLAG == true) {
+//            player.start();
+//            //启动
+//            handler.post(updateThread);
+//            buttonstart.setImageResource(R.drawable.music_pause);
+//            splay = (ImageButton) findViewById(R.id.no_small_play);
+//            bplay = (ImageButton) findViewById(R.id.no_big_play);
+//            PLAY_FLAG = false;
+//        } else if (PLAY_FLAG == false) {
+//            PLAY_FLAG = true;
+//        }
+//    }
+
+//    public void btn_NotificationFlag() {
+//        if (ISPLAY == false) {
+//            myNotify.bigContentView.setImageViewResource(R.id.no_big_play, R.drawable.music_pause);
+//            ISPLAY = true;
+//            Log.i("========", "|||" + ISPLAY);
+//            notificationMethod(title, singer, images);
+//        } else if (ISPLAY == true) {
+//            myNotify.bigContentView.setImageViewResource(R.id.no_big_play, R.drawable.music_play);
+//            ISPLAY = false;
+//            Log.i("========", "|||" + ISPLAY);
+//            notificationMethod(title, singer, images);
+//        }
+//    }
 
 
 }
