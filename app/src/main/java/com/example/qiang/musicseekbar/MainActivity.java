@@ -457,11 +457,10 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.quit1:
                 //设置listview数据源，并自定义ListView
-//                mlist = DBUtil.musicrs(this, this);
-//                mlistview.setAdapter(new MusicAdapter(this, mlist));
-                mlist = DBUtil.BaseMusicList(this);
+                mlist.clear();
+                mlist.addAll(DBUtil.BaseMusicList(this));
                 mAdapter = new MusicAdapter(this, mlist);
-                mlistview.setAdapter(mAdapter);
+//                mlistview.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
                 //数据库操作
                 return true;
