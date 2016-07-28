@@ -255,7 +255,8 @@ public class MainActivity extends AppCompatActivity {
         mlistview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int position, long l) {
-//                发现如果长按item，会造成onItemClickListener也会被触发，这是因为onItemLongClickListener默认返回为false，而返回false会触发onItemClickListener，这时可以通过将onItemLongClickListener返回true解决。
+//                发现如果长按item，会造成onItemClickListener也会被触发，这是因为onItemLongClickListener默认返回为false，
+// 而返回false会触发onItemClickListener，这时可以通过将onItemLongClickListener返回true解决。
                 cur_position = position;
                 lp.setList_postion(cur_position);
                 mAdapter.notifyDataSetChanged();
