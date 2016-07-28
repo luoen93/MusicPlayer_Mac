@@ -54,6 +54,7 @@
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:background="#00000000"
+            android:scaleType="fitXY"
             android:src="@drawable/music_play" />
 
         <ImageButton
