@@ -65,32 +65,6 @@ public class DBUtil extends Activity {
         return mblist;
     }
 
-    public static boolean InsertMusic(DataBaseHelper myHelper, String mtetle) {
-        boolean isdouble = false;
-        //获取数据库对象
-        SQLiteDatabase db = myHelper.getWritableDatabase();
-        //搜索操作
-        Cursor cursor = db.query("music_info", null, null, null, null, null, "_id asc");
-        //获取书本数量
-        int num = cursor.getCount();
-        //初始化一个数组
-        String res[] = new String[num];
-        //moveToFirst：移动到第一位数据
-        //isAfterLast：判断是否为最后一位
-        //moveToNext：往后移动一位
-        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
-            String title = cursor.getString(cursor.getColumnIndex("m_title"));
-            //getPosition：返回数据当前行数
-            res[cursor.getPosition()] = title;
-            if (res[cursor.getPosition()] == mtetle) {
-                isdouble = true;
-                break;
-            }
-        }
-        //返回数组
-        return isdouble;
-    }
-
     //点击从sd卡获取所有音频文件
     public static List<Map<String, Object>> musicrs(Context context, Activity activity) {
         DataBaseHelper dbhelper = new DataBaseHelper(context);
@@ -206,6 +180,33 @@ public class DBUtil extends Activity {
         cur.close();
 //        cur = null;
         return album_art;
+    }
+
+    //判断数据库中是否已经存在相同名字的歌曲
+    public static boolean InsertMusic(DataBaseHelper myHelper, String mtetle) {
+        boolean isdouble = false;
+        //获取数据库对象
+        SQLiteDatabase db = myHelper.getWritableDatabase();
+        //搜索操作
+        Cursor cursor = db.query("music_info", null, null, null, null, null, "_id asc");
+        //获取书本数量
+        int num = cursor.getCount();
+        //初始化一个数组
+        String res[] = new String[num];
+        //moveToFirst：移动到第一位数据
+        //isAfterLast：判断是否为最后一位
+        //moveToNext：往后移动一位
+        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+            String title = cursor.getString(cursor.getColumnIndex("m_title"));
+            //getPosition：返回数据当前行数
+            res[cursor.getPosition()] = title;
+            if (res[cursor.getPosition()] == mtetle) {
+                isdouble = true;
+                break;
+            }
+        }
+        //返回数组
+        return isdouble;
     }
 
     private static String formatTimeFromProgress(int progress) {

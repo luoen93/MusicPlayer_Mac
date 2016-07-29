@@ -74,7 +74,12 @@ public class MainActivity extends AppCompatActivity {
     private static final int BUTTON_BIG_NEXT_ID = 5;
     private static final int BUTTON_BIG_PREVIEW_ID = 6;
 
+    //监听是否是由于点击paly/pause按键引起的notifaction变动
     public static boolean PLAY_BUTTON_FLAG = false;
+
+    //监听返回按键
+    private static Boolean isExit = false;
+
 
     public final static String INTENT_BUTTONID_TAG = "ButtonId";
 
@@ -82,9 +87,6 @@ public class MainActivity extends AppCompatActivity {
     private ImageButton buttonstart, buttonnext;
     private TextView opTime, edTime, bottom_title, bottom_singer;
     private ImageView bottom_img;
-    public ImageButton splay, bplay;
-
-    private ImageButton small_play, big_play;
 
 
     private ListView mlistview;
@@ -124,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
         init();
         //activity中的按键控制
         setListener();
-        //
+        //绑定notifaction中的按键操作
         initButtonReceiver();
 
     }
@@ -137,7 +139,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void init() {
-        //
+        //第二次进入程序时候读取保存的音乐信息,可以直接播放上次关闭时候的歌曲
+        //使用SharedPreferences的形式
         try {
             player.reset();
             SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
@@ -166,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
                     AlbumDealUtil adu = new AlbumDealUtil();
                     bm = BitmapFactory.decodeFile(images);
                     Bitmap abm = bm;
+                    //blurBitmap用来生成虚化的背景页面
                     Bitmap nbm = adu.blurBitmap(bm, MainActivity.this);
                     BitmapDrawable bmpDraw = new BitmapDrawable(nbm);
                     main_layout.setBackgroundDrawable(bmpDraw);
@@ -243,7 +247,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        //item点击事件
+        //listview中的item点击事件
         mlistview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -272,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 PauseMusic();
-//                FlagChanges();
             }
         });
 
@@ -323,8 +326,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    private static Boolean isExit = false;
-
     private void exitBy2Click() {
         Timer tExit = null;
         if (isExit == false) {
@@ -344,47 +345,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void PauseMusic() {
-        if (ISPLAY == false) {
-            player.start();
-            //启动
-            handler.post(updateThread);
-            buttonstart.setBackgroundResource(R.drawable.music_pause);
-            PLAY_BUTTON_FLAG = true;
-            notificationMethod(title, singer, images);
-            ISPLAY = true;
-
-            //打开notification
-//                    notificationMethod();
-        } else if (ISPLAY == true) {
-            player.pause();
-            PLAY_BUTTON_FLAG = true;
-            notificationMethod(title, singer, images);
-            buttonstart.setBackgroundResource(R.drawable.music_play);
-            ISPLAY = false;
-
-        }
-
-    }
-
-    public void NextMusic(MediaPlayer mp) {
-        //点击切换歌曲
-        if (songIndex < mlist.size() - 1) {
-            songIndex = songIndex + 1;
-            songplay(songIndex);
-        } else {
-            songIndex = 0;
-            songplay(songIndex);
-        }
-    }
-
-    public void PreviewMusic() {
-        //do last music
-    }
 
     //每次播放时候的操作
     private void songplay(int position) {
 
+        //获取歌曲在listview中的position信息
         songIndex = position;
         //读取数据库中歌曲的信息
         HashMap<String, Object> geturl = (HashMap<String, Object>) mlist.get(position);
@@ -393,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
         String mtitle = geturl.get("title").toString();
         String martist = geturl.get("artist").toString();
         String mtime = geturl.get("time").toString();
-        //每次播放更新配置表中的配置数据
+        //每次播放更新配置表中的配置数据,用于第二次打开读取(如何改为在OnDestory中实现)
         SharedPreferences share = getSharedPreferences("config", MODE_PRIVATE);
         SharedPreferences.Editor edit = share.edit(); //编辑文件
         edit.putString("url", murl);
@@ -413,7 +378,7 @@ public class MainActivity extends AppCompatActivity {
             player.prepare();
             bottom_title.setText(mtitle);
             bottom_singer.setText(martist);
-            Log.i(back_img, "++++++");
+            //判断歌曲是否拥有专辑封面信息,如没有使用自带的default图片
             if (back_img == "default") {
                 main_layout.setBackgroundResource(R.drawable.natoli);
                 bottom_img.setImageResource(R.drawable.natoli);
@@ -428,13 +393,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
 
-            //
+            //获取歌曲时长(可细化改进部分,已在数据库中有数据,无需再次调用方法计算)
             int time = player.getDuration();
             String edtime = formatTimeFromProgress(time);
             edTime.setText(edtime);
 
             player.start();
-            //
+            //开始进程,刷新seekbar条
             handler.post(updateThread);
             buttonstart.setBackgroundResource(R.drawable.music_pause);
             ISPLAY = true;
@@ -445,15 +410,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private String formatTimeFromProgress(int progress) {
-        // 总的秒数
-        int msecTotal = progress / 1000;
-        int min = msecTotal / 60;
-        int msec = msecTotal % 60;
-        String minStr = min < 10 ? "0" + min : "" + min;
-        String msecStr = msec < 10 ? "0" + msec : "" + msec;
-        return minStr + ":" + msecStr;
-    }
 
     //右上角小menu
     @Override
@@ -485,11 +441,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    //notifaction
     public void notificationMethod(String mtitle, String martist, String mimg) {
         // 在Android进行通知处理，首先需要重系统哪里获得通知管理器NotificationManager，它是一个系统Service。
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
+        //nitifaction的状态栏现实icon
         myNotify.icon = R.drawable.natoli;
+        //状态栏通知时候的文本
         myNotify.tickerText = "开始播放";
         myNotify.when = System.currentTimeMillis();
         myNotify.flags = Notification.FLAG_NO_CLEAR;// 不能够自动清除
@@ -532,7 +490,6 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent intent_big_prev = PendingIntent.getBroadcast(this, BUTTON_BIG_PREVIEW_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv_big.setOnClickPendingIntent(R.id.no_big_preview, intent_big_prev);
 
-//        Intent intentnext = new Intent("next");
         buttonplay.putExtra(INTENT_BUTTONID_TAG, BUTTON_SMALL_NEXT_ID);
         PendingIntent intent_small_next = PendingIntent.getBroadcast(this, BUTTON_SMALL_NEXT_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_next, intent_small_next);
@@ -541,16 +498,17 @@ public class MainActivity extends AppCompatActivity {
         PendingIntent intent_small_play = PendingIntent.getBroadcast(this, BUTTON_SMALL_PALY_ID, buttonplay, PendingIntent.FLAG_UPDATE_CURRENT);
         rv.setOnClickPendingIntent(R.id.no_small_play, intent_small_play);
 
+        //根据是否是按键操作,判断是否需要切换nitifaction中button的图片
         if (PLAY_BUTTON_FLAG == true) {
             if (ISPLAY == false) {
                 rv_big.setImageViewResource(R.id.no_big_play, R.drawable.music_pause);
+                rv.setImageViewResource(R.id.no_small_play, R.drawable.music_pause);
                 ISPLAY = true;
                 PLAY_BUTTON_FLAG = false;
-                Log.i("========", "|||" + ISPLAY);
             } else if (ISPLAY == true) {
                 rv_big.setImageViewResource(R.id.no_big_play, R.drawable.music_play);
+                rv.setImageViewResource(R.id.no_small_play, R.drawable.music_play);
                 ISPLAY = false;
-                Log.i("========", "|||" + ISPLAY);
                 PLAY_BUTTON_FLAG = false;
             }
         }
@@ -562,8 +520,9 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public class ButtonBroadcastReceiver extends BroadcastReceiver {
 
+    //notifaction中按键的监听与操作
+    public class ButtonBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
@@ -609,33 +568,56 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-//    public void FlagChanges() {
-//        if (PLAY_FLAG == true) {
-//            player.start();
-//            //启动
-//            handler.post(updateThread);
-//            buttonstart.setImageResource(R.drawable.music_pause);
-//            splay = (ImageButton) findViewById(R.id.no_small_play);
-//            bplay = (ImageButton) findViewById(R.id.no_big_play);
-//            PLAY_FLAG = false;
-//        } else if (PLAY_FLAG == false) {
-//            PLAY_FLAG = true;
-//        }
-//    }
 
-//    public void btn_NotificationFlag() {
-//        if (ISPLAY == false) {
-//            myNotify.bigContentView.setImageViewResource(R.id.no_big_play, R.drawable.music_pause);
-//            ISPLAY = true;
-//            Log.i("========", "|||" + ISPLAY);
-//            notificationMethod(title, singer, images);
-//        } else if (ISPLAY == true) {
-//            myNotify.bigContentView.setImageViewResource(R.id.no_big_play, R.drawable.music_play);
-//            ISPLAY = false;
-//            Log.i("========", "|||" + ISPLAY);
-//            notificationMethod(title, singer, images);
-//        }
-//    }
+    //音乐播放操作
+    public void PauseMusic() {
+        if (ISPLAY == false) {
+            player.start();
+            //启动
+            handler.post(updateThread);
+            buttonstart.setBackgroundResource(R.drawable.music_pause);
+            PLAY_BUTTON_FLAG = true;
+            notificationMethod(title, singer, images);
+            ISPLAY = true;
+
+            //打开notification
+//                    notificationMethod();
+        } else if (ISPLAY == true) {
+            player.pause();
+            PLAY_BUTTON_FLAG = true;
+            notificationMethod(title, singer, images);
+            buttonstart.setBackgroundResource(R.drawable.music_play);
+            ISPLAY = false;
+
+        }
+
+    }
+
+    public void NextMusic(MediaPlayer mp) {
+        //点击切换歌曲
+        if (songIndex < mlist.size() - 1) {
+            songIndex = songIndex + 1;
+            songplay(songIndex);
+        } else {
+            songIndex = 0;
+            songplay(songIndex);
+        }
+    }
+
+    public void PreviewMusic() {
+        //do last music
+    }
+
+    //将毫秒转化成XX:XX时间形式
+    private String formatTimeFromProgress(int progress) {
+        // 总的秒数
+        int msecTotal = progress / 1000;
+        int min = msecTotal / 60;
+        int msec = msecTotal % 60;
+        String minStr = min < 10 ? "0" + min : "" + min;
+        String msecStr = msec < 10 ? "0" + msec : "" + msec;
+        return minStr + ":" + msecStr;
+    }
 
 
 }
