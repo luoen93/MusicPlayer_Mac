@@ -226,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setListener() {
 
+        //播放完成后自动切换歌曲
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -367,7 +368,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void NextMusic(MediaPlayer mp) {
-        //播放完成后，自动切换下一首
+        //点击切换歌曲
         if (songIndex < mlist.size() - 1) {
             songIndex = songIndex + 1;
             songplay(songIndex);
@@ -402,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
         edit.putInt("position", position);
         edit.commit();  //保存数据信息
 
+        //刷新notifaction中歌曲信息
         notificationMethod(mtitle, martist, back_img);
 
         //重置MediaPlayer状态
@@ -469,8 +471,6 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.quit1:
                 //设置listview数据源，并自定义ListView
-//                mlist.clear();
-//                mlist.addAll(DBUtil.BaseMusicList(this));
 
                 mlist = DBUtil.musicrs(this, this);
 //                mlistview.setAdapter(new MusicAdapter(this, mlist));
