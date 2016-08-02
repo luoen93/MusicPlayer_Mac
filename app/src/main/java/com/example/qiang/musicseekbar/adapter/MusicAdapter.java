@@ -116,8 +116,9 @@ public class MusicAdapter extends BaseAdapter {
             zujian.de_button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    d_dbutil.deleteData(d_helper, (String) data.get(position).get("title"));
-
+//                    d_dbutil.deleteData(d_helper, (String) data.get(position).get("title"));
+                    //获取歌曲名
+                    ListPos.setList_position_title((String) data.get(position).get("title"));
                 }
             });
 

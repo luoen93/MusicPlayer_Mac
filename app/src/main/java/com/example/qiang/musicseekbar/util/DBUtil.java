@@ -95,13 +95,14 @@ public class DBUtil extends Activity {
                 int duration = cr.getInt(cr.getColumnIndex(MediaStore.Audio.Media.DURATION));
 
                 String image = getAlbumArt(album_id, context);
-                //
-                if (image == null) {
+                //剔除小于5秒的音频
+                if (duration < 5000) {
                     continue;
                 }
+                //将毫秒转换成XX:XX形string
                 String mtime = formatTimeFromProgress(duration);
-
-                if (duration < 5000 || image == null) {
+                //给时间大于5秒,且没有图片的音频使用默认图片
+                if (duration > 5000 || image == null) {
                     image = "default";
                 }
 

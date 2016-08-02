@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean ISPLAY = false;
     private Bitmap bm = null;
     private RelativeLayout main_layout;
+    private Button delete_button;
 
     String url = null;
     String title = null;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     int cur_position = -1;
 
     private MusicAdapter mAdapter;
+    private DataBaseHelper dbhelper;
 
     List<Map<String, Object>> mlist = new ArrayList<Map<String, Object>>();
 
@@ -118,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //
+        dbhelper = new DataBaseHelper(this);
         //定义一个新的MediaPlayer
         player = new MediaPlayer();
         //绑定界面id与activity
@@ -210,6 +214,8 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MusicAdapter(this, mlist);
         mlistview.setAdapter(mAdapter);
 
+        delete_button = (Button) findViewById(R.id.list_item_delete_btn);
+
     }
 
     //进度条的控制
@@ -283,6 +289,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 NextMusic(player);
+            }
+        });
+
+        //删除歌曲的操作
+        delete_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //从bean中取得歌曲名
+                String gettitle = ListPos.getList_position_title();
+                //取得position指代的歌曲名
+                DBUtil.deleteData(dbhelper, gettitle);
+
             }
         });
 
@@ -394,8 +412,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             //获取歌曲时长(可细化改进部分,已在数据库中有数据,无需再次调用方法计算)
-            int time = player.getDuration();
-            String edtime = formatTimeFromProgress(time);
+//            int time = player.getDuration();
+//            String edtime = formatTimeFromProgress(time);
+            String edtime = mtime;
             edTime.setText(edtime);
 
             player.start();
