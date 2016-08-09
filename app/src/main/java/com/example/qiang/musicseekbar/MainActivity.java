@@ -214,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MusicAdapter(this, mlist);
         mlistview.setAdapter(mAdapter);
 
-        delete_button = (Button) findViewById(R.id.list_item_delete_btn);
+//        delete_button = (Button) findViewById(R.id.list_item_delete_btn);
 
     }
 
@@ -293,16 +293,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
         //删除歌曲的操作
-        delete_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //从bean中取得歌曲名
-                String gettitle = ListPos.getList_position_title();
-                //取得position指代的歌曲名
-                DBUtil.deleteData(dbhelper, gettitle);
-
-            }
-        });
+//        delete_button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                //从bean中取得歌曲名
+//                String gettitle = ListPos.getList_position_title();
+//                //取得position指代的歌曲名
+//                DBUtil.deleteData(dbhelper, gettitle);
+//
+//            }
+//        });
 
         //seekbar的控制
         seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

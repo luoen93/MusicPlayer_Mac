@@ -96,15 +96,15 @@ public class DBUtil extends Activity {
 
                 String image = getAlbumArt(album_id, context);
                 //剔除小于5秒的音频
-                if (duration < 5000) {
+                if (duration < 10000) {
                     continue;
                 }
                 //将毫秒转换成XX:XX形string
                 String mtime = formatTimeFromProgress(duration);
                 //给时间大于5秒,且没有图片的音频使用默认图片
-                if (duration > 5000 || image == null) {
-                    image = "default";
-                }
+//                if (duration > 5000 && image == null) {
+//                    image = "default";
+//                }
 
                 Map<String, Object> map = new HashMap<String, Object>();
                 map.put("title", title);
